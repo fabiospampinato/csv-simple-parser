@@ -101,7 +101,7 @@ const parseBase = ( input: string, options: Options & Pick<Required<Options>, 't
 
       }
 
-      if ( state === STATE_AFTER_CELL ) { // New row
+      if ( state === STATE_AFTER_CELL || state === STATE_AFTER_DELIMITER ) { // New row
 
         if ( code === CR ) { // To seemlessly support CR/LF/CRLF
           const codeNext = ( i < l - 1 ) ? input.charCodeAt ( i + 1 ) : -1;

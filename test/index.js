@@ -137,6 +137,7 @@ describe ( 'CSV Simple Parser', it => {
     t.deepEqual ( parse ( 'foo,' ), [['foo', '']] );
     t.deepEqual ( parse ( ',foo' ), [['', 'foo']] );
     t.deepEqual ( parse ( ',foo,' ), [['', 'foo', '']] );
+    t.deepEqual ( parse ( 'foo,\n,bar' ), [['foo', ''], ['', 'bar']] );
 
   });
 
