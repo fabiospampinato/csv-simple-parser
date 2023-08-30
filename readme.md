@@ -33,7 +33,7 @@ import parse from 'csv-simple-parser';
 
 { // Parse a CSV-like string, with custom delimiters and quotes
   const csv = "Name|Surname\n'John'|Doe\nJane|'Doe'";
-  const options = { delimiter: '|', quote: "'" };
+  const options = { header: true, delimiter: '|', quote: "'" };
   const result = parse ( csv, options ); // => [{ Name: 'John', Surname: 'Doe' }, { Name: 'Jane', Surname: 'Doe' }]
 }
 ```
