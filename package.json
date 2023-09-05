@@ -10,6 +10,11 @@
   "scripts": {
     "benchmark": "tsex benchmark",
     "benchmark:watch": "tsex benchmark --watch",
+    "benchmark:update:1": "wget -O ./tasks/sample_time_series.csv 'https://github.com/Schlumberger/hackathon/raw/master/backend/dataset/data-large.csv'",
+    "benchmark:update:2": "wget -O ./tasks/sample_uszip.csv 'https://gist.githubusercontent.com/Meekohi/1f220f5a1d36feb9bd3cf5f59e518643/raw/35e3fb742ee065b530d4e165e757f178f8352e19/uszips.csv'",
+    "benchmark:update:3": "wget -O ./tasks/sample_hpi.csv 'http://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/Average-prices-2022-01.csv?utm_medium=GOV.UK&utm_source=datadownload&utm_campaign=average_price&utm_term=9.30_23_03_22'",
+    "benchmark:update:4": "wget -O ./tasks/sample_earthquakes.csv 'https://raw.githubusercontent.com/mafintosh/csv-parser/master/test/fixtures/large-dataset.csv'",
+    "benchmark:update": "npm run benchmark:update:1 && npm run benchmark:update:2 && npm run benchmark:update:3 && npm run benchmark:update:4",
     "clean": "tsex clean",
     "compile": "tsex compile",
     "compile:watch": "tsex compile --watch",

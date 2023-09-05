@@ -7,69 +7,47 @@ import parse from '../dist/index.js';
 
 /* HELPERS */
 
-const FIXTURE_CSV = fs.readFileSync ( 'tasks/sample.csv', 'utf8' );
-const FIXTURE_QUOTE = fs.readFileSync ( 'tasks/sample.quote', 'utf8' );
+const SAMPLE_EARTHQUAKES = fs.readFileSync ( 'tasks/sample_earthquakes.csv', 'utf8' );
+const SAMPLE_HPI = fs.readFileSync ( 'tasks/sample_hpi.csv', 'utf8' );
+const SAMPLE_TIME_SERIES = fs.readFileSync ( 'tasks/sample_time_series.csv', 'utf8' );
+const SAMPLE_USZIP = fs.readFileSync ( 'tasks/sample_uszip.csv', 'utf8' );
 
 /* MAIN */
 
 benchmark.config ({
-  iterations: 2
+  iterations: 1
 });
 
-benchmark ({
-  name: 'csv.array',
-  fn: () => {
-    parse ( FIXTURE_CSV );
-  }
-});
+for ( const [name, SAMPLE] of [[ 'earthquakes', SAMPLE_EARTHQUAKES ], [ 'hpi', SAMPLE_HPI ], [ 'time_series', SAMPLE_TIME_SERIES ], [ 'uszip', SAMPLE_USZIP ]] ) {
 
-benchmark ({
-  name: 'csv.array.infer',
-  fn: () => {
-    parse ( FIXTURE_CSV, { infer: true } );
-  }
-});
+  benchmark ({
+    name: `${name}.array`,
+    fn: () => {
+      parse ( SAMPLE );
+    }
+  });
 
-benchmark ({
-  name: 'csv.header',
-  fn: () => {
-    parse ( FIXTURE_CSV, { header: true } );
-  }
-});
+  benchmark ({
+    name: `${name}.array.infer`,
+    fn: () => {
+      parse ( SAMPLE, { infer: true } );
+    }
+  });
 
-benchmark ({
-  name: 'csv.header.infer',
-  fn: () => {
-    parse ( FIXTURE_CSV, { header: true, infer: true } );
-  }
-});
+  benchmark ({
+    name: `${name}.header`,
+    fn: () => {
+      parse ( SAMPLE, { header: true } );
+    }
+  });
 
-benchmark ({
-  name: 'quote.array',
-  fn: () => {
-    parse ( FIXTURE_QUOTE, { quote: "'" } );
-  }
-});
+  benchmark ({
+    name: `${name}.header.infer`,
+    fn: () => {
+      parse ( SAMPLE, { header: true, infer: true } );
+    }
+  });
 
-benchmark ({
-  name: 'quote.array.infer',
-  fn: () => {
-    parse ( FIXTURE_QUOTE, { quote: "'", infer: true } );
-  }
-});
-
-benchmark ({
-  name: 'quote.header',
-  fn: () => {
-    parse ( FIXTURE_QUOTE, { quote: "'", header: true } );
-  }
-});
-
-benchmark ({
-  name: 'quote.header.infer',
-  fn: () => {
-    parse ( FIXTURE_QUOTE, { quote: "'", header: true, infer: true } );
-  }
-});
+}
 
 benchmark.summary ();
