@@ -38,9 +38,9 @@ import parse from 'csv-simple-parser';
 }
 
 { // Parse a potentially malformed CSV-like string, which could have inconsistent newlines
-  const csv = "Name|Surname\r\n'John'|Doe\nJane|'Doe'";
-  const options = { header: true, delimiter: '|', quote: "'", optimistic: false };
-  const result = parse ( csv, options ); // => [{ Name: 'John', Surname: 'Doe' }, { Name: 'Jane', Surname: 'Doe' }]
+  const csv = 'Name,Surname\r\n"John",Doe\nJane,"Doe"';
+  const options = { optimistic: false };
+  const result = parse ( csv ); // => [['Name', 'Surname'], ['John', 'Doe'], ['Jane', 'Doe']]
 }
 ```
 
