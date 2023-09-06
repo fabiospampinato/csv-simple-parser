@@ -1,6 +1,7 @@
 
 /* IMPORT */
 
+import detectEOL from 'detect-eol';
 import {identity, infer} from './utils';
 import type {Options} from './types';
 
@@ -16,10 +17,13 @@ const parseBase = ( input: string, options: Options & Pick<Required<Options>, 't
   const LF = 10; // \n
   const DELIMITER = options.delimiter?.charCodeAt ( 0 ) ?? 44; // ,
   const QUOTE = options.quote?.charCodeAt ( 0 ) ?? 34; // "
+  const OPTIMISTIC = options.optimistic ?? true;
   const TRANSFORM = options.transform;
 
+  const DELIMITER_STR = String.fromCharCode ( DELIMITER ); // ,
   const QUOTE_STR = String.fromCharCode ( QUOTE ); // "
   const DOUBLE_QUOTE_STR = `${QUOTE_STR}${QUOTE_STR}`; // ""
+  const NEWLINE_STR = detectEOL ( input, { fallback: '\n', window: 0 } ); // \r\n, \n, \r
 
   const STATE_IN_CELL = 1;
   const STATE_AFTER_CELL = 2;
@@ -31,6 +35,7 @@ const parseBase = ( input: string, options: Options & Pick<Required<Options>, 't
   let cellStartIndex = 0;
   let cellUnquoted = false;
   let cellEscaped = false;
+  let columns = 0; // Expected number of columns, 0 if not yet known
   let x = 0;
   let y = 0;
 
@@ -44,10 +49,62 @@ const parseBase = ( input: string, options: Options & Pick<Required<Options>, 't
 
       if ( state === STATE_AFTER_DELIMITER ) { // Quoted cell start
 
-        state = STATE_IN_CELL;
-        cellStartIndex = i + 1;
-        cellUnquoted = false;
-        cellEscaped = false;
+        let skipped = false;
+
+        if ( OPTIMISTIC && columns ) { // Optimistic skip to end attempt, once we know the number of columns
+
+          let cellEndIndex = -1;
+          let j = i;
+
+          while ( true ) {
+
+            cellEndIndex = input.indexOf ( QUOTE_STR, j + 1 );
+
+            if ( cellEndIndex < 0 ) break; // No delimiter
+
+            const next = ( i < l - 1 ) ? input.charCodeAt ( cellEndIndex + 1 ) : -1;
+
+            if ( next === QUOTE ) { // Escaped delimiter
+
+              j = cellEndIndex + 1;
+              cellEscaped = true;
+
+            } else { // Unescaped delimiter
+
+              break;
+
+            }
+
+          }
+
+          if ( cellEndIndex > 0 ) { // Successful optimistic skip to end
+
+            const isLast = ( y === columns - 1 );
+            const value = input.slice ( i + 1, cellEndIndex );
+            const valueUnescaped = cellEscaped ? value.replaceAll ( DOUBLE_QUOTE_STR, QUOTE_STR ) : value;
+
+            TRANSFORM ( valueUnescaped, x, y, true );
+
+            skipped = true;
+            x = isLast ? x + 1 : x;
+            y = isLast ? 0 : y + 1;
+            i = cellEndIndex + DELIMITER_STR.length - 1;
+            state = STATE_AFTER_CELL;
+            cellUnquoted = false;
+            cellEscaped = false;
+
+          }
+
+        }
+
+        if ( !skipped ) { // No optimistic skip to end
+
+          state = STATE_IN_CELL;
+          cellStartIndex = i + 1;
+          cellUnquoted = false;
+          cellEscaped = false;
+
+        }
 
       } else if ( state === STATE_IN_CELL && !cellUnquoted ) { // Escape or Quoted cell end
 
@@ -60,10 +117,10 @@ const parseBase = ( input: string, options: Options & Pick<Required<Options>, 't
 
         } else { // Quoted cell end
 
-          const cell = input.slice ( cellStartIndex, i );
-          const cellUnescaped = cellEscaped ? cell.replaceAll ( DOUBLE_QUOTE_STR, QUOTE_STR ) : cell;
+          const value = input.slice ( cellStartIndex, i );
+          const valueUnescaped = cellEscaped ? value.replaceAll ( DOUBLE_QUOTE_STR, QUOTE_STR ) : value;
 
-          TRANSFORM ( cellUnescaped, x, y, true );
+          TRANSFORM ( valueUnescaped, x, y, true );
 
           state = STATE_AFTER_CELL;
           cellUnquoted = false;
@@ -110,6 +167,7 @@ const parseBase = ( input: string, options: Options & Pick<Required<Options>, 't
           }
         }
 
+        columns ||= y;
         state = STATE_AFTER_DELIMITER;
         x += 1;
         y = 0;
@@ -151,10 +209,40 @@ const parseBase = ( input: string, options: Options & Pick<Required<Options>, 't
 
     } else if ( state === STATE_AFTER_DELIMITER ) { // Unquoted cell start
 
-      state = STATE_IN_CELL;
-      cellStartIndex = i;
-      cellUnquoted = true;
-      cellEscaped = false;
+      let skipped = false;
+
+      if ( OPTIMISTIC && columns ) { // Optimistic skip to end attempt, once we know the number of columns
+
+        const isLast = ( y === columns - 1 );
+        const delimiter = isLast ? NEWLINE_STR : DELIMITER_STR;
+        const cellEndIndex = input.indexOf ( delimiter, i + 1 );
+
+        if ( cellEndIndex > 0 ) { // Successful optimistic skip to end
+
+          const value = input.slice ( i, cellEndIndex );
+
+          TRANSFORM ( value, x, y, false );
+
+          skipped = true;
+          x = isLast ? x + 1 : x;
+          y = isLast ? 0 : y + 1;
+          i = cellEndIndex + delimiter.length - 1;
+          state = STATE_AFTER_DELIMITER;
+          cellUnquoted = false;
+          cellEscaped = false;
+
+        }
+
+      }
+
+      if ( !skipped ) { // No optimistic skip to end
+
+        state = STATE_IN_CELL;
+        cellStartIndex = i;
+        cellUnquoted = true;
+        cellEscaped = false;
+
+      }
 
     }
 

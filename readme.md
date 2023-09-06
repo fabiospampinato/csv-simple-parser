@@ -36,6 +36,12 @@ import parse from 'csv-simple-parser';
   const options = { header: true, delimiter: '|', quote: "'" };
   const result = parse ( csv, options ); // => [{ Name: 'John', Surname: 'Doe' }, { Name: 'Jane', Surname: 'Doe' }]
 }
+
+{ // Parse a potentially malformed CSV-like string, which could have inconsistent newlines
+  const csv = "Name|Surname\r\n'John'|Doe\nJane|'Doe'";
+  const options = { header: true, delimiter: '|', quote: "'", optimistic: false };
+  const result = parse ( csv, options ); // => [{ Name: 'John', Surname: 'Doe' }, { Name: 'Jane', Surname: 'Doe' }]
+}
 ```
 
 ## License

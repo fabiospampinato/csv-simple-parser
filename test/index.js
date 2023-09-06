@@ -50,7 +50,7 @@ describe ( 'CSV Simple Parser', it => {
 
   it ( 'supports multiple lines, with any newline, array', t => {
 
-    t.deepEqual ( parse ( 'abc\r123\n"abc"\r\n \tabc\t ' ), [['abc'], ['123'], ['abc'], [' \tabc\t ']] );
+    t.deepEqual ( parse ( 'abc\r123\n"abc"\r\n \tabc\t ', { optimistic: false } ), [['abc'], ['123'], ['abc'], [' \tabc\t ']] );
 
   });
 
@@ -96,7 +96,7 @@ describe ( 'CSV Simple Parser', it => {
 
   it ( 'supports multiple lines, with any newline, header', t => {
 
-    t.deepEqual ( parse ( 'abc\r123\n"abc"\r\n \tabc\t ', { header: true } ), [{ 'abc': '123' }, { 'abc': 'abc' }, { 'abc': ' \tabc\t ' }] );
+    t.deepEqual ( parse ( 'abc\r123\n"abc"\r\n \tabc\t ', { header: true, optimistic: false } ), [{ 'abc': '123' }, { 'abc': 'abc' }, { 'abc': ' \tabc\t ' }] );
 
   });
 

@@ -6,6 +6,7 @@ type Options = {
   quote?: string,
   header?: boolean,
   infer?: boolean,
+  optimistic?: boolean,
   transform?: ( value: string, x: number, y: number, quoted: boolean ) => void
 };
 

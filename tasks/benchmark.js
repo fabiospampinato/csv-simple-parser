@@ -18,7 +18,7 @@ benchmark.config ({
   iterations: 1
 });
 
-for ( const [name, SAMPLE] of [[ 'earthquakes', SAMPLE_EARTHQUAKES ], [ 'hpi', SAMPLE_HPI ], [ 'time_series', SAMPLE_TIME_SERIES ], [ 'uszip', SAMPLE_USZIP ]] ) {
+for ( const [name, SAMPLE] of [['earthquakes', SAMPLE_EARTHQUAKES], ['hpi', SAMPLE_HPI], ['time_series', SAMPLE_TIME_SERIES], ['uszip', SAMPLE_USZIP]] ) {
 
   benchmark ({
     name: `${name}.array`,
