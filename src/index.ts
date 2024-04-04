@@ -346,3 +346,4 @@ const parse = ( input: string, options: Options = {} ): unknown[][] | Record<str
 /* EXPORT */
 
 export default parse;
+export type {Options};
