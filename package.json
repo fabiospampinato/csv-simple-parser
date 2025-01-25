@@ -3,7 +3,7 @@
   "repository": "github:fabiospampinato/csv-simple-parser",
   "description": "A simple, fast and configurable CSV parser.",
   "license": "MIT",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "main": "dist/index.js",
   "exports": "./dist/index.js",
