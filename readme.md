@@ -5,7 +5,7 @@ A simple, fast and configurable CSV parser.
 ## Install
 
 ```sh
-npm install --save csv-simple-parser
+npm install csv-simple-parser
 ```
 
 ## Usage
