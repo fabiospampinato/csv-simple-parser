@@ -104,7 +104,7 @@ describe ( 'CSV Simple Parser', it => {
 
   it ( 'can infer numeric values automatically', t => {
 
-    t.deepEqual ( parse ( '123,-123,123.123,"123","-123","123.123",', { infer: true } ), [[123, -123, 123.123, '123', '-123', '123.123', '']] );
+    t.deepEqual ( parse ( '123,-123,123.123,"123","-123","123.123",', { infer: true } ), [[123, -123, 123.123, '123', '-123', '123.123', null]] );
     t.deepEqual ( parse ( 'head\n123\n-123\n123.123\n"123"\n"-123"\n"123.123"\n""', { infer: true, header: true } ), [{ head: 123 }, { head: -123 }, { head: 123.123 }, { head: '123' }, { head: '-123' }, { head: '123.123' }, { head: '' }] );
     t.deepEqual ( parse ( '123n', { infer: true } ), [['123n']] );
     t.deepEqual ( parse ( 'head\n123n', { infer: true, header: true } ), [{ head: '123n' }] );
@@ -113,7 +113,33 @@ describe ( 'CSV Simple Parser', it => {
 
   it ( 'can infer null values automatically', t => {
 
-    t.deepEqual ( parse ( 'null,NULL,"null","NULL"', { infer: true } ), [[null, null, 'null', 'NULL']] );
+    t.deepEqual ( parse ( ',null,NULL,"","null","NULL"', { infer: true } ), [[null, null, null, '', 'null', 'NULL']] );
+
+  });
+
+  it ( 'can infer false values automatically', t => {
+
+    t.deepEqual ( parse ( 'false,FALSE,"false","FALSE"', { infer: true } ), [[false, false, 'false', 'FALSE']] );
+
+  });
+
+  it ( 'can infer true values automatically', t => {
+
+    t.deepEqual ( parse ( 'true,TRUE,"true","TRUE"', { infer: true } ), [[true, true, 'true', 'TRUE']] );
+
+  });
+
+  it ( 'can infer values with a custom function', t => {
+
+    const infer = ( value, isExplicitlyQuoted ) => isExplicitlyQuoted ? value : value === '0' ? false : value === '1' ? true : value;
+
+    t.deepEqual ( parse ( '1,"1",0,"0"', { infer } ), [[true, '1', false, '0']] );
+
+  });
+
+  it ( 'can avoid inferring non-finite numeric values automatically', t => {
+
+    t.deepEqual ( parse ( 'NaN,Infinity,-Infinity', { infer: true } ), [['NaN', 'Infinity', '-Infinity']] );
 
   });
 
@@ -158,25 +184,6 @@ describe ( 'CSV Simple Parser', it => {
   it ( 'can support a trailing newline', t => {
 
     t.deepEqual ( parse ( 'abc,123\n' ), [['abc', '123'], ['', undefined]] ); //TODO: This may be somewhat controversial
-
-  });
-
-  it ( 'can transform values with a custom function', t => {
-
-    const transform = ( value, x, y, quoted ) => quoted ? value : value === '0' ? false : value === '1' ? true : value;
-
-    t.deepEqual ( parse ( '1,"1",0,"0"', { transform } ), [[true, '1', false, '0']] );
-
-  });
-
-  it ( 'can transform inferred numeric values with a custom function too', t => {
-
-    const csv = 'Name,Surname,Age,Pirate\n"John",Doe,50,1\nJane,"Doe",50,0';
-    const transform = ( value, x, y, quoted ) => quoted ? value : value === '0' ? false : value === '1' ? true : value;
-    const options = { header: true, infer: true, transform };
-    const result = parse ( csv, options );
-
-    t.deepEqual ( result, [{ Name: 'John', Surname: 'Doe', Age: 50, Pirate: true }, { Name: 'Jane', Surname: 'Doe', Age: 50, Pirate: false }] );
 
   });
 

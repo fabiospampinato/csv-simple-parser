@@ -1,28 +1,30 @@
 
 /* MAIN */
 
-const identity = <T> ( value: T ): T => {
+const infer = ( value: string, isExplicitlyQuoted: boolean ): unknown => {
 
-  return value;
+  if ( isExplicitlyQuoted ) return value;
 
-};
+  if ( value === '' || value === 'null' || value === 'NULL' ) return null;
 
-const infer = ( value: unknown ): unknown => {
+  if ( value === 'false' || value === 'FALSE' ) return false;
 
-  if ( typeof value !== 'string' ) return value;
-
-  if ( !value.length ) return value;
-
-  if ( value === 'null' || value === 'NULL' ) return null;
+  if ( value === 'true' || value === 'TRUE' ) return true;
 
   const number = Number ( value );
 
-  if ( isNaN ( number ) ) return value;
+  if ( number !== number || number === Infinity || number === -Infinity ) return value;
 
   return number;
 
 };
 
+const isFunction = ( value: unknown ): value is Function => {
+
+  return typeof value === 'function';
+
+};
+
 /* EXPORT */
 
-export {identity, infer};
+export {infer, isFunction};

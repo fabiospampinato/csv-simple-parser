@@ -2,14 +2,14 @@
 /* IMPORT */
 
 import detectEOL from 'detect-eol';
-import {identity, infer} from './utils';
-import type {Options} from './types';
+import {infer, isFunction} from './utils';
+import type {Options, ParseOptions} from './types';
 
 /* MAIN */
 
 //TODO: Support opt-in comments
 
-const parseBase = ( input: string, options: Options & Pick<Required<Options>, 'transform'> ): void => {
+const parseBase = ( input: string, options: ParseOptions ): void => {
 
   /* CONSTANTS */
 
@@ -268,8 +268,9 @@ const parseBase = ( input: string, options: Options & Pick<Required<Options>, 't
 
 const parseArrays = ( input: string, options: Options ): unknown[][] => {
 
-  const INFER = !!options.infer;
-  const TRANSFORM = options.transform || identity;
+  const INFER = isFunction ( options.infer ) ? options.infer : infer;
+  const INFER_IS_ACTIVE = !!options.infer;
+  const INFER_IS_DEFAULT = INFER === infer;
   const ROWS: unknown[][] = [];
 
   let row: unknown[] = [];
@@ -277,7 +278,7 @@ const parseArrays = ( input: string, options: Options ): unknown[][] => {
 
   parseBase ( input, {
     ...options,
-    transform: ( value, x, y, quoted ) => {
+    transform: ( value, x, y, isExplicitlyQuoted ) => {
       if ( !y ) {
         if ( x === 1 ) {
           rowLength = row.length;
@@ -285,10 +286,10 @@ const parseArrays = ( input: string, options: Options ): unknown[][] => {
         row = new Array ( rowLength ); // Pre-allocating a correctly-sized array, except for the first row
         ROWS.push ( row );
       }
-      if ( INFER && value.length && !quoted ) {
-        row[y] = infer ( TRANSFORM ( value, x, y, quoted ) );
+      if ( !INFER_IS_ACTIVE || ( INFER_IS_DEFAULT && isExplicitlyQuoted ) ) {
+        row[y] = value;
       } else {
-        row[y] = TRANSFORM ( value, x, y, quoted );
+        row[y] = INFER ( value, isExplicitlyQuoted );
       }
     }
   });
@@ -299,8 +300,9 @@ const parseArrays = ( input: string, options: Options ): unknown[][] => {
 
 const parseObjects = ( input: string, options: Options ): Record<string, unknown>[] => {
 
-  const INFER = !!options.infer;
-  const TRANSFORM = options.transform || identity;
+  const INFER = isFunction ( options.infer ) ? options.infer : infer;
+  const INFER_IS_ACTIVE = !!options.infer;
+  const INFER_IS_DEFAULT = INFER === infer;
   const HEADERS: string[] = [];
   const ROWS: Record<string, unknown>[] = [];
 
@@ -308,7 +310,7 @@ const parseObjects = ( input: string, options: Options ): Record<string, unknown
 
   parseBase ( input, {
     ...options,
-    transform: ( value, x, y, quoted ) => {
+    transform: ( value, x, y, isExplicitlyQuoted ) => {
       if ( !x ) {
         HEADERS.push ( value );
       } else {
@@ -316,10 +318,10 @@ const parseObjects = ( input: string, options: Options ): Record<string, unknown
           row = {}; //TODO: Pre-allocate a correctly-spaced object, somehow, possibly without generating a function at runtime
           ROWS.push ( row );
         }
-        if ( INFER && value.length && !quoted ) {
-          row[HEADERS[y]] = infer ( TRANSFORM ( value, x, y, quoted ) );
+        if ( !INFER_IS_ACTIVE || ( INFER_IS_DEFAULT && isExplicitlyQuoted ) ) {
+          row[HEADERS[y]] = value;
         } else {
-          row[HEADERS[y]] = TRANSFORM ( value, x, y, quoted );
+          row[HEADERS[y]] = INFER ( value, isExplicitlyQuoted );
         }
       }
     }
