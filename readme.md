@@ -33,7 +33,7 @@ import parse from 'csv-simple-parser';
 { // Parse a CSV string, as an array of objects, using a custom infer function
   // The default infer function is here: https://github.com/fabiospampinato/csv-simple-parser/blob/master/src/utils.ts
   const csv = 'Name,Surname,Age,Pirate,Parent\n"John",Doe,50,"1",1\nJane,"Doe",50,"0",0';
-  const infer = ( value, isExplicitlyQuoted ) => isExplicitlyQuoted ? value : value === '0' ? false : value === '1' ? true : value;
+  const infer = ( value, x, y, isExplicitlyQuoted ) => isExplicitlyQuoted ? value : value === '0' ? false : value === '1' ? true : value;
   const options = { header: true, infer };
   const result = parse ( csv, options ); // => [{ Name: 'John', Surname: 'Doe', Age: '50', Pirate: '1', Parent: true }, { Name: 'Jane', Surname: 'Doe', Age: 50, '0': false, Parent: false }]
 }
