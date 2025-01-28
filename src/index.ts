@@ -289,7 +289,7 @@ const parseArrays = ( input: string, options: Options ): unknown[][] => {
       if ( !INFER_IS_ACTIVE || ( INFER_IS_DEFAULT && isExplicitlyQuoted ) ) {
         row[y] = value;
       } else {
-        row[y] = INFER ( value, isExplicitlyQuoted );
+        row[y] = INFER ( value, x, y, isExplicitlyQuoted );
       }
     }
   });
@@ -321,7 +321,7 @@ const parseObjects = ( input: string, options: Options ): Record<string, unknown
         if ( !INFER_IS_ACTIVE || ( INFER_IS_DEFAULT && isExplicitlyQuoted ) ) {
           row[HEADERS[y]] = value;
         } else {
-          row[HEADERS[y]] = INFER ( value, isExplicitlyQuoted );
+          row[HEADERS[y]] = INFER ( value, x, y, isExplicitlyQuoted );
         }
       }
     }

@@ -1,7 +1,7 @@
 
 /* MAIN */
 
-const infer = ( value: string, isExplicitlyQuoted: boolean ): unknown => {
+const infer = ( value: string, x: number, y: number, isExplicitlyQuoted: boolean ): unknown => {
 
   if ( isExplicitlyQuoted ) return value;
 

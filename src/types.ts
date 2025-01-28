@@ -2,7 +2,7 @@
 /* HELPERS */
 
 type InferFunction = {
-  ( value: string, isExplicitlyQuoted: boolean ): unknown
+  ( value: string, x: number, y: number, isExplicitlyQuoted: boolean ): unknown
 };
 
 type TransformFunction = {

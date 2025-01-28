@@ -131,7 +131,7 @@ describe ( 'CSV Simple Parser', it => {
 
   it ( 'can infer values with a custom function', t => {
 
-    const infer = ( value, isExplicitlyQuoted ) => isExplicitlyQuoted ? value : value === '0' ? false : value === '1' ? true : value;
+    const infer = ( value, x, y, isExplicitlyQuoted ) => isExplicitlyQuoted ? value : value === '0' ? false : value === '1' ? true : value;
 
     t.deepEqual ( parse ( '1,"1",0,"0"', { infer } ), [[true, '1', false, '0']] );
 
